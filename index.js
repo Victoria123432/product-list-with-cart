@@ -1,6 +1,10 @@
 const cartContent = document.querySelector(".cart-content");
 const cartCounter = document.querySelector(".cart h4 span");
 const totalCounter = document.querySelector(".total-order-price span");
+const confirmOrderButton = document.getElementById("confirm-order");
+const modal = document.querySelector(".modal");
+const modalOverlay = document.querySelector(".modal-overlay");
+const startNewOrderButton = document.getElementById("new-order");
 
 let cartItems = [];
 
@@ -19,7 +23,7 @@ async function loadProducts() {
     products.forEach((product) => {
       const productHTML = `
           <div class="item">
-            <div class="item-img-wrapper">
+            <div class="item-img-wrapper"> 
               <img src="${product.image.desktop}" alt="${product.name}" />
               <button class="add-to-cart" data-id="${product.name}">
                 <img src="assets/images/icon-add-to-cart.svg" alt="Add to Cart Icon" />
@@ -218,6 +222,52 @@ function removeItem() {
     });
   });
 }
-
 setupQuantityButtons();
 loadProducts();
+
+function showModal() {
+  modal.classList.add("active");
+  modalOverlay.classList.add("active");
+}
+
+function hideModal() {
+  modal.classList.remove("active");
+  modalOverlay.classList.remove("active");
+}
+
+confirmOrderButton.addEventListener("click", () => {
+  const orderTotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+  modal.querySelector(".total-order-price span").textContent =
+    orderTotal.toFixed(2);
+
+  const productCartInfoWrapper = modal.querySelector(
+    ".product-cart-info-wrapper-modal"
+  );
+
+  productCartInfoWrapper.innerHTML = "";
+
+  cartItems.forEach((item) => {
+    const itemHTML = `
+        <div class="product-cart-info">
+            <div class="name">${item.name}</div>
+            <div class="description-modal">
+              <div class="modal-sub-sesc">
+                <div class="num-of-items">x<span>${item.quantity}</span></div>
+                <div class="price-per-1">$ @<span>${item.price}</span></div>
+              </div>
+              <div class="total-price">$<span>${
+                item.quantity * item.price
+              }</span></div>
+            </div>
+          </div>
+  `;
+    productCartInfoWrapper.innerHTML += itemHTML;
+  });
+  showModal();
+});
+
+startNewOrderButton.addEventListener("click", hideModal);
+modalOverlay.addEventListener("click", hideModal);
